@@ -11,6 +11,8 @@ import rs.raf.rafcloud.repositories.MachineRepository;
 import rs.raf.rafcloud.repositories.RoleRepository;
 import rs.raf.rafcloud.repositories.UserRepository;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,6 +76,9 @@ public class BootstrapData implements CommandLineRunner {
         machine.setCreatedBy(user1);
         machine.setStatus("STOPPED");
         machine.setName("masina1");
+        machine.setCreationDate(Date.valueOf(LocalDate.now()));
+        machine.setName("masina1");
+
         machineRepository.save(machine);
 
         System.out.println("Data loaded!");

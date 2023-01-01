@@ -41,4 +41,15 @@ public class MachineRestController {
         return ResponseEntity.ok(machineService.createMachine(createMachineDto , userId));
     }
 
+    @PutMapping(value = "/start/{machineId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> startMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
+        return ResponseEntity.ok(machineService.startMachine(machineId, userId));
+    }
+
+//    @MyAuthorization(authorization = RoleEnum.can_destroy_machines)
+//    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<?> destroyMachine(@RequestBody CreateMachineDto createMachineDto, @RequestAttribute("userId") Long userId ){
+//        return ResponseEntity.ok(machineService.createMachine(createMachineDto , userId));
+//    }
+
 }

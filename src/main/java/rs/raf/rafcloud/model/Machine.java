@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,5 +31,11 @@ public class Machine {
 
     @Column(nullable=false)
     private Boolean active;
+
+    @Column(name = "creation_date",nullable=false)
+    private Date creationDate;
+
+    @Column(nullable=false)
+    private Boolean isDeleted = false;
 
 }
