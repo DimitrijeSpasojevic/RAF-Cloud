@@ -7,5 +7,4 @@ public interface IService<T, ID> {
     T findById(ID var1);
 
     void deleteById(ID var1);
-
 }

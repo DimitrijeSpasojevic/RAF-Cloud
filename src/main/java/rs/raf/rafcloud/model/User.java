@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -38,6 +39,11 @@ public class User {
     )
     @JsonIgnore
     private List<Role> roles = new ArrayList<>();
+
+
+    @OneToMany(mappedBy="createdBy")
+    @JsonIgnore
+    private List<Machine> machines = new ArrayList<>();;
 
     public void addRole(Role role){
         roles.add(role);

@@ -32,10 +32,12 @@ public class JwtFilter extends OncePerRequestFilter {
         String authHeader = httpServletRequest.getHeader("Authorization");
         String jwt = null;
         String username = null;
+        Long userId = null;
 
         if(authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
             username = jwtUtil.extractUsername(jwt);
+            userId = jwtUtil.extractUserId(jwt);
         }
 
         if (username != null) {
@@ -51,6 +53,13 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
         }
+        if(httpServletRequest.getRequestURI().contains("/api/machines/createdByUser/")) {
+            String[] pathVars = httpServletRequest.getRequestURI().split("/");
+            Long userIdFromPath = Long.valueOf(pathVars[pathVars.length - 1]);
+            if(userId != userIdFromPath) throw new RuntimeException("Korisnik ne moze videti masine drugog korinsika");
+
+        }
+
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 }

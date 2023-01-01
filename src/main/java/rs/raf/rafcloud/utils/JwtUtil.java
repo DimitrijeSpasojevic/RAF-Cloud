@@ -24,19 +24,24 @@ public class JwtUtil {
         return extractAllClaims(token).getSubject();
     }
 
+    public Long extractUserId(String token) {
+        return extractAllClaims(token).get("userId",Long.class);
+    }
+
     public boolean isTokenExpired(String token){
         return extractAllClaims(token).getExpiration().before(new Date());
     }
 
-    public String generateToken(String username, List<Role> roles){
+    public String generateToken(String username, List<Role> roles, Long userId){
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles",roles);
+        claims.put("userId",userId);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 250))
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY).compact();
     }
 

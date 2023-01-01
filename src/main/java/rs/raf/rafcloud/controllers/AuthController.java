@@ -34,7 +34,7 @@ public class AuthController {
             return ResponseEntity.status(401).build();
         }
         User user = userService.findByUserName(loginRequest.getUsername());
-        return ResponseEntity.ok(new LoginResponse(jwtUtil.generateToken(loginRequest.getUsername(), user.getRoles())));
+        return ResponseEntity.ok(new LoginResponse(jwtUtil.generateToken(loginRequest.getUsername(), user.getRoles(), user.getUserId())));
     }
 
 }
