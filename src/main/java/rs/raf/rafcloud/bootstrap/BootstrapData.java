@@ -73,6 +73,7 @@ public class BootstrapData implements CommandLineRunner {
         machine.setActive(true);
         machine.setCreatedBy(user1);
         machine.setStatus("STOPPED");
+        machine.setName("masina1");
         machineRepository.save(machine);
 
         System.out.println("Data loaded!");

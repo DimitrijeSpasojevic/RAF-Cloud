@@ -53,6 +53,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
         }
+
+        httpServletRequest.setAttribute("userId", userId);
+
         if(httpServletRequest.getRequestURI().contains("/api/machines/createdByUser/")) {
             String[] pathVars = httpServletRequest.getRequestURI().split("/");
             Long userIdFromPath = Long.valueOf(pathVars[pathVars.length - 1]);

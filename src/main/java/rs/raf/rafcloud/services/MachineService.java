@@ -2,6 +2,7 @@ package rs.raf.rafcloud.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rs.raf.rafcloud.dtos.CreateMachineDto;
 import rs.raf.rafcloud.model.Machine;
 import rs.raf.rafcloud.model.User;
 import rs.raf.rafcloud.repositories.MachineRepository;
@@ -43,5 +44,15 @@ public class MachineService implements IService<Machine,Long>{
     public List<Machine> findAllByUserId(Long userId) {
         User user = userRepository.findByUserId(userId);
         return machineRepository.findAllByCreatedBy(user);
+    }
+
+    public Machine createMachine(CreateMachineDto createMachineDto, Long userId){
+        User user = userRepository.findByUserId(userId);
+        Machine machine = new Machine();
+        machine.setActive(true);
+        machine.setCreatedBy(user);
+        machine.setStatus("STOPPED");
+        machine.setName(createMachineDto.getName());
+        return this.save(machine);
     }
 }
