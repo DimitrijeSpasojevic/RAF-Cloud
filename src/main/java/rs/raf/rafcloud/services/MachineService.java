@@ -69,5 +69,4 @@ public class MachineService implements IService<Machine,Long>{
 //        if(!machine.getStatus().equals("STOPPED")) throw new RuntimeException("Masina nije u stanju stopped i ne moze biti startovana");
         return "pocelo";
     }
-
 }
