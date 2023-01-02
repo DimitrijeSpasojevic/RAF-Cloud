@@ -2,7 +2,7 @@ package rs.raf.rafcloud.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import rs.raf.rafcloud.actions.MyBean;
 import rs.raf.rafcloud.actions.StartAction;
 import rs.raf.rafcloud.dtos.CreateMachineDto;
 import rs.raf.rafcloud.model.Machine;
@@ -17,11 +17,12 @@ public class MachineService implements IService<Machine,Long>{
 
     private final MachineRepository machineRepository;
     private final UserRepository userRepository;
-
+    private final MyBean myBean;
     @Autowired
-    public MachineService(MachineRepository machineRepository, UserRepository userRepository) {
+    public MachineService(MachineRepository machineRepository, UserRepository userRepository, MyBean myBean) {
         this.machineRepository = machineRepository;
         this.userRepository = userRepository;
+        this.myBean = myBean;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class MachineService implements IService<Machine,Long>{
 
     public String startMachine(Long machineId, Long userId) {
 //        machine = entityManager.merge(machine);
-        StartAction startAction = new StartAction(machineRepository, userRepository, machineId, userId);
+        StartAction startAction = new StartAction(machineId, userId, this.myBean);
         startAction.start();
 //        if(!machine.getStatus().equals("STOPPED")) throw new RuntimeException("Masina nije u stanju stopped i ne moze biti startovana");
         return "pocelo";
