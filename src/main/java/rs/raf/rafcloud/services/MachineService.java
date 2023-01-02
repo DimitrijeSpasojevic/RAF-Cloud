@@ -10,6 +10,8 @@ import rs.raf.rafcloud.model.User;
 import rs.raf.rafcloud.repositories.MachineRepository;
 import rs.raf.rafcloud.repositories.UserRepository;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -56,6 +58,7 @@ public class MachineService implements IService<Machine,Long>{
         machine.setCreatedBy(user);
         machine.setStatus("STOPPED");
         machine.setName(createMachineDto.getName());
+        machine.setCreationDate(Date.valueOf(LocalDate.now()));
         return this.save(machine);
     }
 

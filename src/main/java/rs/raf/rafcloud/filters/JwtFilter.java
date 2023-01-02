@@ -56,12 +56,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
         httpServletRequest.setAttribute("userId", userId);
 
-        if(httpServletRequest.getRequestURI().contains("/api/machines/createdByUser/")) {
-            String[] pathVars = httpServletRequest.getRequestURI().split("/");
-            Long userIdFromPath = Long.valueOf(pathVars[pathVars.length - 1]);
-            if(userId != userIdFromPath) throw new RuntimeException("Korisnik ne moze videti masine drugog korinsika");
-
-        }
+//        if(httpServletRequest.getRequestURI().contains("/api/machines/createdByUser/")) {
+//            String[] pathVars = httpServletRequest.getRequestURI().split("/");
+//            Long userIdFromPath = Long.valueOf(pathVars[pathVars.length - 1]);
+//            if(userId != userIdFromPath) throw new RuntimeException("Korisnik ne moze videti masine drugog korinsika");
+//
+//        }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }

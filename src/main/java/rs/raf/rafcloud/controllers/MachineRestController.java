@@ -30,8 +30,8 @@ public class MachineRestController {
     }
 
     @MyAuthorization(authorization = RoleEnum.can_search_machines)
-    @GetMapping(value = "/createdByUser/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAllMachinesByUserId(@PathVariable Long userId){
+    @GetMapping(value = "/createdByLoggedUser", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAllMachinesByUserId(@RequestAttribute("userId") Long userId){
         return ResponseEntity.ok(machineService.findAllByUserId(userId));
     }
 
