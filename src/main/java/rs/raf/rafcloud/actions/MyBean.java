@@ -1,8 +1,11 @@
 package rs.raf.rafcloud.actions;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import rs.raf.rafcloud.model.Machine;
+import rs.raf.rafcloud.model.Message;
 import rs.raf.rafcloud.model.User;
 import rs.raf.rafcloud.repositories.MachineRepository;
 import rs.raf.rafcloud.repositories.UserRepository;
@@ -17,10 +20,15 @@ public class MyBean {
     private final MachineRepository machineRepository;
     private final UserRepository userRepository;
     private final EntityManager entityManager;
-    public MyBean(MachineRepository machineRepository, UserRepository userRepository, EntityManager entityManager) {
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpUserRegistry simpUserRegistry;
+
+    public MyBean(MachineRepository machineRepository, UserRepository userRepository, EntityManager entityManager, SimpMessagingTemplate simpMessagingTemplate, SimpUserRegistry simpUserRegistry) {
         this.machineRepository = machineRepository;
         this.userRepository = userRepository;
         this.entityManager = entityManager;
+        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.simpUserRegistry = simpUserRegistry;
     }
 
     @Transactional
@@ -37,6 +45,7 @@ public class MyBean {
         }
         machine.setStatus("RUNNING");
         System.out.print("StartAction finished");
+        this.simpMessagingTemplate.convertAndSend("/topic/messages/" + machineId, new Message("server", "masina startovana"));
         return this.machineRepository.saveAndFlush(machine);
     }
 }

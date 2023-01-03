@@ -49,17 +49,8 @@ public class MachineRestController {
         return ResponseEntity.ok(machineService.createMachine(createMachineDto , userId));
     }
 
-    @MessageMapping("/send-message")
-    @SendTo("/topic/messages")
-    public Message send(@Payload Message message, StompHeaderAccessor stompHeaderAccessor) throws Exception {
-        System.out.println(stompHeaderAccessor.getUser().getName());
-        message.setFrom(stompHeaderAccessor.getUser().getName());
-        String time = new SimpleDateFormat("HH:mm").format(new Date());
-        System.out.println("[" + time + "] Message sent.");
-        return message;
-    }
 
-    @PutMapping(value = "/start/{machineId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/start/{machineId}", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> startMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
         return ResponseEntity.ok(machineService.startMachine(machineId, userId));
     }

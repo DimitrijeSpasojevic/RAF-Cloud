@@ -40,6 +40,12 @@ public class JwtFilter extends OncePerRequestFilter {
             userId = jwtUtil.extractUserId(jwt);
         }
 
+        if (jwt == null && httpServletRequest.getParameter("jwt") != null) {
+            jwt = httpServletRequest.getParameter("jwt");
+            username = jwtUtil.extractUsername(jwt);
+            userId = jwtUtil.extractUserId(jwt);
+        }
+
         if (username != null) {
 
             UserDetails userDetails = this.userService.loadUserByUsername(username);
