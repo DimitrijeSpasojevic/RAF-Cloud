@@ -52,7 +52,8 @@ public class MachineRestController {
 
     @PutMapping(value = "/start/{machineId}", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> startMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
-        return ResponseEntity.ok(machineService.startMachine(machineId, userId));
+        machineService.startMachine(machineId, userId);
+        return ResponseEntity.ok().build();
     }
 
 //    @MyAuthorization(authorization = RoleEnum.can_destroy_machines)

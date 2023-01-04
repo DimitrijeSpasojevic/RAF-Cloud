@@ -62,11 +62,10 @@ public class MachineService implements IService<Machine,Long>{
         return this.save(machine);
     }
 
-    public String startMachine(Long machineId, Long userId) {
+    public void startMachine(Long machineId, Long userId) {
 //        machine = entityManager.merge(machine);
         StartAction startAction = new StartAction(machineId, userId, this.myBean);
         startAction.start();
 //        if(!machine.getStatus().equals("STOPPED")) throw new RuntimeException("Masina nije u stanju stopped i ne moze biti startovana");
-        return "pocelo";
     }
 }
