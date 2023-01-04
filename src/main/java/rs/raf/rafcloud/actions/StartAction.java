@@ -11,6 +11,7 @@ import rs.raf.rafcloud.repositories.MachineRepository;
 import rs.raf.rafcloud.repositories.UserRepository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import static java.lang.Thread.sleep;
 
@@ -19,14 +20,14 @@ public class StartAction implements AbstractAction{
 
     private final MachineRepository machineRepository;
     private final UserRepository userRepository;
-    private final EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public StartAction(MachineRepository machineRepository, UserRepository userRepository, EntityManager entityManager, SimpMessagingTemplate simpMessagingTemplate) {
+    public StartAction(MachineRepository machineRepository, UserRepository userRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.machineRepository = machineRepository;
         this.userRepository = userRepository;
-        this.entityManager = entityManager;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
