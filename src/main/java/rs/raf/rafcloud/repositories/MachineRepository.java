@@ -10,7 +10,6 @@ import rs.raf.rafcloud.model.User;
 
 import javax.persistence.LockModeType;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface MachineRepository extends JpaRepository<Machine, Long> {
@@ -20,5 +19,5 @@ public interface MachineRepository extends JpaRepository<Machine, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Transactional(propagation = Propagation.MANDATORY)
-    Machine findWithLockingByIdAndCreatedBy(Long machineId, User user);
+    Machine findWithLockingByIdAndCreatedByAndActive(Long machineId, User user, Boolean active);
 }

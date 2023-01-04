@@ -2,8 +2,10 @@ package rs.raf.rafcloud.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import rs.raf.rafcloud.actions.MyBean;
+import rs.raf.rafcloud.actions.MachineAction;
+import rs.raf.rafcloud.actions.RestartAction;
 import rs.raf.rafcloud.actions.StartAction;
+import rs.raf.rafcloud.actions.StopAction;
 import rs.raf.rafcloud.dtos.CreateMachineDto;
 import rs.raf.rafcloud.model.Machine;
 import rs.raf.rafcloud.model.User;
@@ -13,18 +15,23 @@ import rs.raf.rafcloud.repositories.UserRepository;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MachineService implements IService<Machine,Long>{
 
     private final MachineRepository machineRepository;
     private final UserRepository userRepository;
-    private final MyBean myBean;
+    private final StartAction startAction;
+    private final StopAction stopAction;
+    private final RestartAction restartAction;
     @Autowired
-    public MachineService(MachineRepository machineRepository, UserRepository userRepository, MyBean myBean) {
+    public MachineService(MachineRepository machineRepository, UserRepository userRepository, StartAction startAction, StopAction stopAction, RestartAction restartAction) {
         this.machineRepository = machineRepository;
         this.userRepository = userRepository;
-        this.myBean = myBean;
+        this.startAction = startAction;
+        this.stopAction = stopAction;
+        this.restartAction = restartAction;
     }
 
     @Override
@@ -63,9 +70,24 @@ public class MachineService implements IService<Machine,Long>{
     }
 
     public void startMachine(Long machineId, Long userId) {
-//        machine = entityManager.merge(machine);
-        StartAction startAction = new StartAction(machineId, userId, this.myBean);
-        startAction.start();
-//        if(!machine.getStatus().equals("STOPPED")) throw new RuntimeException("Masina nije u stanju stopped i ne moze biti startovana");
+        MachineAction machineAction = new MachineAction(machineId, userId, this.startAction);
+        machineAction.start();
+    }
+
+    public void stopMachine(Long machineId, Long userId) {
+        MachineAction machineAction = new MachineAction(machineId, userId, this.stopAction);
+        machineAction.start();
+    }
+
+    public void restartMachine(Long machineId, Long userId) {
+        MachineAction machineAction = new MachineAction(machineId, userId, this.restartAction);
+        machineAction.start();
+    }
+
+    public void destroyMachine(Long machineId, Long userId) {
+        Optional<Machine> machine = this.machineRepository.findById(machineId);
+        if(!machine.get().getStatus().equalsIgnoreCase("STOPPED")) throw new RuntimeException("Ne moze biti obrisana");
+        machine.get().setActive(false);
+        machineRepository.saveAndFlush(machine.get());
     }
 }

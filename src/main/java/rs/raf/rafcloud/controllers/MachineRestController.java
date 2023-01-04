@@ -56,10 +56,23 @@ public class MachineRestController {
         return ResponseEntity.ok().build();
     }
 
-//    @MyAuthorization(authorization = RoleEnum.can_destroy_machines)
-//    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<?> destroyMachine(@RequestBody CreateMachineDto createMachineDto, @RequestAttribute("userId") Long userId ){
-//        return ResponseEntity.ok(machineService.createMachine(createMachineDto , userId));
-//    }
+    @PutMapping(value = "/stop/{machineId}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> stopMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
+        machineService.stopMachine(machineId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(value = "/restart/{machineId}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> restartMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
+        machineService.restartMachine(machineId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @MyAuthorization(authorization = RoleEnum.can_destroy_machines)
+    @PutMapping(value = "/destroy/{machineId}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> destroyMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
+        machineService.destroyMachine(machineId, userId);
+        return ResponseEntity.ok().build();
+    }
 
 }

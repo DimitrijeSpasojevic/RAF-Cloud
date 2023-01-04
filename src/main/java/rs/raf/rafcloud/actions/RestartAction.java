@@ -1,7 +1,6 @@
 package rs.raf.rafcloud.actions;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import rs.raf.rafcloud.model.Machine;
@@ -15,7 +14,7 @@ import javax.persistence.EntityManager;
 import static java.lang.Thread.sleep;
 
 @Component
-public class StartAction implements AbstractAction{
+public class RestartAction implements AbstractAction{
 
     private final MachineRepository machineRepository;
     private final UserRepository userRepository;
@@ -23,7 +22,7 @@ public class StartAction implements AbstractAction{
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public StartAction(MachineRepository machineRepository, UserRepository userRepository, EntityManager entityManager, SimpMessagingTemplate simpMessagingTemplate) {
+    public RestartAction(MachineRepository machineRepository, UserRepository userRepository, EntityManager entityManager, SimpMessagingTemplate simpMessagingTemplate) {
         this.machineRepository = machineRepository;
         this.userRepository = userRepository;
         this.entityManager = entityManager;
@@ -33,28 +32,30 @@ public class StartAction implements AbstractAction{
     @Override
     public Machine doMachineAction(Long machineId, Long userId) {
         User user = userRepository.findByUserId(userId);
-        Machine machine = null;
-        try {
-            machine = machineRepository.findWithLockingByIdAndCreatedByAndActive(machineId,user, true);
-        } catch (PessimisticLockingFailureException e) {
-            System.out.println("SSIIIIIIIII");
-        }
+        Machine machine = machineRepository.findWithLockingByIdAndCreatedByAndActive(machineId,user, true);
         if(machine == null) return null; // todo masina je izbrisana
         machine = entityManager.merge(machine);
-        System.out.println("usao");
-        if(!machine.getStatus().equalsIgnoreCase("STOPPED")){
-            // todo baca gresku zato sto ne moze biti startovana
-            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina ne moze biti startovana"));
+        if(!machine.getStatus().equalsIgnoreCase("RUNNING")){
+            // todo baca gresku zato sto ne moze biti restartovana
+            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina ne moze biti restartovana"));
             return machine;
         }
         try {
-            sleep(1000 * 5);
+            sleep(1000 * 3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        machine.setStatus("STOPPED");
+        this.machineRepository.saveAndFlush(machine);
+        this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina u pola faze restartovanja"));
+        try {
+            sleep(1000 * 4);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         machine.setStatus("RUNNING");
-        System.out.print("MachineAction finished " + user.getFirstName() + " masina "+ machine.getName());
-        this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message(user.getFirstName(), "masina " +  machine.getName() + " startovana"));
+        System.out.print("MachineAction finished");
+        this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina restartovana"));
         return this.machineRepository.saveAndFlush(machine);
     }
 }
