@@ -17,6 +17,7 @@ import rs.raf.rafcloud.requests.CreateUserRequest;
 import rs.raf.rafcloud.responses.GetUserResponse;
 import rs.raf.rafcloud.services.MachineService;
 
+import javax.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -45,7 +46,7 @@ public class MachineRestController {
 
     @MyAuthorization(authorization = RoleEnum.can_create_machines)
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createMachine(@RequestBody CreateMachineDto createMachineDto, @RequestAttribute("userId") Long userId ){
+    public ResponseEntity<?> createMachine(@Valid @RequestBody CreateMachineDto createMachineDto, @RequestAttribute("userId") Long userId ){
         return ResponseEntity.ok(machineService.createMachine(createMachineDto , userId));
     }
 
