@@ -29,10 +29,10 @@ public class ErrorRestController {
         return ResponseEntity.ok(new GetAllErrorsByUserResponse(errorService.findAllByUserId(userId)));
     }
 
-    @MyAuthorization(authorization = RoleEnum.can_create_machines)
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addError(@RequestBody ErrorFromFront errorFromFront, @RequestAttribute("userId") Long userId ){
-        return ResponseEntity.ok(errorService.addError(errorFromFront,userId));
-    }
+//    @MyAuthorization(authorization = RoleEnum.can_create_machines)
+//    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<?> addError(@RequestBody ErrorFromFront errorFromFront, @RequestAttribute("userId") Long userId ){
+//        return ResponseEntity.ok(errorService.addError(errorFromFront,userId));
+//    }
 
 }

@@ -1,15 +1,15 @@
 package rs.raf.rafcloud.responses;
 
 import lombok.Data;
-import rs.raf.rafcloud.model.MyError;
+import rs.raf.rafcloud.model.ErrorMessage;
 
 import java.util.List;
 
 @Data
 public class GetAllErrorsByUserResponse {
-    private List<MyError> myErrors;
+    private List<ErrorMessage> errorMessages;
 
-    public GetAllErrorsByUserResponse(List<MyError> myErrors) {
-        this.myErrors = myErrors;
+    public GetAllErrorsByUserResponse(List<ErrorMessage> errorMessages) {
+        this.errorMessages = errorMessages;
     }
 }

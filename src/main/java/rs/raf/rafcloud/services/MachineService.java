@@ -1,22 +1,24 @@
 package rs.raf.rafcloud.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import rs.raf.rafcloud.actions.MachineAction;
 import rs.raf.rafcloud.actions.RestartAction;
 import rs.raf.rafcloud.actions.StartAction;
 import rs.raf.rafcloud.actions.StopAction;
 import rs.raf.rafcloud.dtos.CreateMachineDto;
-import rs.raf.rafcloud.exceptions.MyException;
 import rs.raf.rafcloud.model.Machine;
 import rs.raf.rafcloud.model.User;
 import rs.raf.rafcloud.repositories.MachineRepository;
 import rs.raf.rafcloud.repositories.UserRepository;
+import rs.raf.rafcloud.requests.ScheduleRequest;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,13 +30,16 @@ public class MachineService implements IService<Machine,Long>{
     private final StartAction startAction;
     private final StopAction stopAction;
     private final RestartAction restartAction;
+    private final TaskScheduler taskScheduler;
+
     @Autowired
-    public MachineService(MachineRepository machineRepository, UserRepository userRepository, StartAction startAction, StopAction stopAction, RestartAction restartAction) {
+    public MachineService(MachineRepository machineRepository, UserRepository userRepository, StartAction startAction, StopAction stopAction, RestartAction restartAction, TaskScheduler taskScheduler) {
         this.machineRepository = machineRepository;
         this.userRepository = userRepository;
         this.startAction = startAction;
         this.stopAction = stopAction;
         this.restartAction = restartAction;
+        this.taskScheduler = taskScheduler;
     }
 
     @Override
@@ -95,5 +100,25 @@ public class MachineService implements IService<Machine,Long>{
         if(!machine.get().getStatus().equalsIgnoreCase("STOPPED")) throw new RuntimeException("Ne moze biti obrisana");
         machine.get().setActive(false);
         machineRepository.saveAndFlush(machine.get());
+    }
+
+    public void scheduleStart(ScheduleRequest scheduleRequest, Long userId) {
+        Timestamp timestamp = new Timestamp(scheduleRequest.getTimestamp());
+        LocalDateTime dateTime = timestamp.toLocalDateTime();
+
+        String cronExpression = toCron(String.valueOf(dateTime.getSecond()),
+                String.valueOf(dateTime.getMinute()),
+                String.valueOf(dateTime.getHour()),
+                String.valueOf(dateTime.getDayOfMonth()),
+                String.valueOf(dateTime.getMonthValue()),
+                String.valueOf(dateTime.getDayOfWeek().getValue()));
+        CronTrigger cronTrigger = new CronTrigger(cronExpression);
+        this.taskScheduler.schedule(() -> {
+            this.startMachine(scheduleRequest.getMachineId(),userId);
+        }, cronTrigger);
+    }
+
+    public static String toCron(final String secs, final String mins, final String hrs, final String dayOfMonth, final String month, final String dayOfWeek) {
+        return String.format("%s %s %s %s %s %s", secs, mins, hrs, dayOfMonth, month, dayOfWeek);
     }
 }

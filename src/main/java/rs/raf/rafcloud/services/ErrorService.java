@@ -2,16 +2,18 @@ package rs.raf.rafcloud.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rs.raf.rafcloud.actions.ActionEnum;
 import rs.raf.rafcloud.dtos.ErrorFromFront;
-import rs.raf.rafcloud.model.MyError;
+import rs.raf.rafcloud.model.ErrorMessage;
 import rs.raf.rafcloud.repositories.ErrorRepository;
 import rs.raf.rafcloud.repositories.MachineRepository;
 import rs.raf.rafcloud.repositories.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class ErrorService implements IService<MyError,Long>{
+public class ErrorService implements IService<ErrorMessage,Long>{
 
     private final MachineRepository machineRepository;
     private final UserRepository userRepository;
@@ -24,18 +26,17 @@ public class ErrorService implements IService<MyError,Long>{
         this.errorRepository = errorRepository;
     }
 
-
     @Override
-    public <S extends MyError> S save(S err) {
+    public <S extends ErrorMessage> S save(S err) {
         return errorRepository.save(err);
     }
 
     @Override
-    public MyError findById(Long var1) {
+    public ErrorMessage findById(Long var1) {
         return null;
     }
 
-    public List<MyError> findAllByUserId(Long userId) {
+    public List<ErrorMessage> findAllByUserId(Long userId) {
         return errorRepository.findAllByUserId(userId);
     }
 
@@ -44,11 +45,13 @@ public class ErrorService implements IService<MyError,Long>{
 
     }
 
-    public MyError addError(ErrorFromFront errorFromFront, Long userId){
-        MyError myError = new MyError();
-        myError.setErrorText(errorFromFront.getErrorText());
-        myError.setMachineId(errorFromFront.getMachineId());
-        myError.setUserId(userId);
-        return this.save(myError);
+    public ErrorMessage addError(ErrorFromFront errorFromFront, Long userId, ActionEnum actionEnum){
+        ErrorMessage errorMessage = new ErrorMessage();
+        errorMessage.setErrorText(errorFromFront.getErrorText());
+        errorMessage.setMachineId(errorFromFront.getMachineId());
+        errorMessage.setUserId(userId);
+        errorMessage.setLocalDateTime(LocalDateTime.now());
+        errorMessage.setActionEnum(actionEnum);
+        return this.save(errorMessage);
     }
 }

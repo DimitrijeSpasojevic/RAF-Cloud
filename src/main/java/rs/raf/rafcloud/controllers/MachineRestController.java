@@ -14,6 +14,7 @@ import rs.raf.rafcloud.dtos.CreateMachineDto;
 import rs.raf.rafcloud.model.Message;
 import rs.raf.rafcloud.permissions.RoleEnum;
 import rs.raf.rafcloud.requests.CreateUserRequest;
+import rs.raf.rafcloud.requests.ScheduleRequest;
 import rs.raf.rafcloud.responses.GetUserResponse;
 import rs.raf.rafcloud.services.MachineService;
 
@@ -73,6 +74,12 @@ public class MachineRestController {
     @PutMapping(value = "/destroy/{machineId}", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> destroyMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
         machineService.destroyMachine(machineId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/schedule/start", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> scheduleActionStartMachine(@RequestAttribute("userId") Long userId, @Valid @RequestBody ScheduleRequest scheduleRequest){
+        machineService.scheduleStart(scheduleRequest, userId);
         return ResponseEntity.ok().build();
     }
 
