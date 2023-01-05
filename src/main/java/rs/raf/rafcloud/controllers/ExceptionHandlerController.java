@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import rs.raf.rafcloud.model.MyError;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,4 +27,11 @@ public class ExceptionHandlerController {
 
         return errors;
     }
+
+//ako u se u drugom thredu desi nece ga uhvatiti... npr u start actionu nece
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    @ExceptionHandler(RuntimeException.class)
+//    public String handleExceptions(RuntimeException exception) {
+//        return exception.getMessage();
+//    }
 }

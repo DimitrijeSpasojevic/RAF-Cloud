@@ -1,12 +1,15 @@
 package rs.raf.rafcloud.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import rs.raf.rafcloud.actions.MachineAction;
 import rs.raf.rafcloud.actions.RestartAction;
 import rs.raf.rafcloud.actions.StartAction;
 import rs.raf.rafcloud.actions.StopAction;
 import rs.raf.rafcloud.dtos.CreateMachineDto;
+import rs.raf.rafcloud.exceptions.MyException;
 import rs.raf.rafcloud.model.Machine;
 import rs.raf.rafcloud.model.User;
 import rs.raf.rafcloud.repositories.MachineRepository;
@@ -70,6 +73,9 @@ public class MachineService implements IService<Machine,Long>{
     }
 
     public void startMachine(Long machineId, Long userId) {
+//        if(machineId != 2432243){
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "moj izzzzuzetak");
+//        }
         MachineAction machineAction = new MachineAction(machineId, userId, this.startAction);
         machineAction.start();
     }

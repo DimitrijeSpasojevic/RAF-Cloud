@@ -5,6 +5,7 @@ import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
+import rs.raf.rafcloud.exceptions.MyException;
 import rs.raf.rafcloud.model.Machine;
 import rs.raf.rafcloud.model.Message;
 import rs.raf.rafcloud.model.User;
@@ -12,7 +13,6 @@ import rs.raf.rafcloud.repositories.MachineRepository;
 import rs.raf.rafcloud.repositories.UserRepository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import static java.lang.Thread.sleep;
@@ -34,21 +34,23 @@ public class StartAction implements AbstractAction{
     }
 
     @Override
-    public Machine doMachineAction(Long machineId, Long userId) {
+    public void doMachineAction(Long machineId, Long userId) {
+        isAnotherActionOnMachineRunning(machineId,userId);
         User user = userRepository.findByUserId(userId);
         Machine machine = null;
         try {
             machine = machineRepository.findWithLockingByIdAndCreatedByAndActive(machineId,user, true);
-        } catch (PessimisticLockingFailureException e) {
-            System.out.println("SSIIIIIIIII");
+        } catch (ObjectOptimisticLockingFailureException e) {
+            System.out.println("kako?");
         }
-        if(machine == null) return null; // todo masina je izbrisana
+        if(machine == null){
+            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina nije aktivna i ne moze biti startovana"));
+            return;
+        }
         machine = entityManager.merge(machine);
-        System.out.println("usao");
         if(!machine.getStatus().equalsIgnoreCase("STOPPED")){
-            // todo baca gresku zato sto ne moze biti startovana
-            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina ne moze biti startovana"));
-            return machine;
+            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina ne moze biti startovana zato sto nije u stanju stopped"));
+            return;
         }
         try {
             sleep(1000 * 5);
@@ -56,9 +58,23 @@ public class StartAction implements AbstractAction{
             e.printStackTrace();
         }
         machine.setStatus("RUNNING");
-        System.out.print("MachineAction finished " + user.getFirstName() + " masina "+ machine.getName());
+        System.out.print("MachineActionStart finished " + user.getFirstName() + " masina "+ machine.getName());
         this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message(user.getFirstName(), "masina " +  machine.getName() + " startovana"));
-        return this.machineRepository.saveAndFlush(machine);
+        this.machineRepository.saveAndFlush(machine);
+    }
+
+    private void isAnotherActionOnMachineRunning(Long machineId, Long userId){
+        User user = userRepository.findByUserId(userId);
+        Machine machine =  machineRepository.findByIdAndCreatedByAndActive(machineId,user, true);
+
+        try {
+
+            machine.setStatus(machine.getStatus());
+            this.machineRepository.save(machine);
+
+        }catch (ObjectOptimisticLockingFailureException exception) {
+            System.out.println(exception + "  u stTartu");
+        }
     }
 
     // za optimistic

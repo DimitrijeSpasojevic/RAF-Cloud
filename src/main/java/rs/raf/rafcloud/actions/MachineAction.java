@@ -2,6 +2,7 @@ package rs.raf.rafcloud.actions;
 
 
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.transaction.UnexpectedRollbackException;
 
 public class MachineAction extends Thread{
 
@@ -26,7 +27,11 @@ public class MachineAction extends Thread{
 
     public void run()
     {
-        abstractAction.doMachineAction(machineId,userId);
+        try {
+            abstractAction.doMachineAction(machineId,userId);
+        }catch (UnexpectedRollbackException e){
+            System.out.println("Dimi");
+        }
     }
 
 

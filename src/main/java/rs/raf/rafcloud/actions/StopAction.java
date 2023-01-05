@@ -2,7 +2,6 @@ package rs.raf.rafcloud.actions;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import rs.raf.rafcloud.model.Machine;
 import rs.raf.rafcloud.model.Message;
@@ -32,16 +31,16 @@ public class StopAction implements AbstractAction{
     }
 
     @Override
-    public Machine doMachineAction(Long machineId, Long userId) {
+    public void doMachineAction(Long machineId, Long userId) {
         User user = userRepository.findByUserId(userId);
         Machine machine = machineRepository.findWithLockingByIdAndCreatedByAndActive(machineId,user, true);
-        if(machine == null) return null; // todo masina je izbrisana
+        if(machine == null) return; // todo masina je izbrisana
         machine = entityManager.merge(machine);
 
         if(!machine.getStatus().equalsIgnoreCase("RUNNING")){
             // todo baca gresku zato sto ne moze biti stop
             this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina ne moze biti stopirana zato sto nije u stanju running"));
-            return machine;
+            return;
         }
         try {
             sleep(1000 * 5);
@@ -51,7 +50,7 @@ public class StopAction implements AbstractAction{
         machine.setStatus("STOPPED");
         System.out.print("MachineAction finished");
         this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina je stopirana"));
-        return this.machineRepository.saveAndFlush(machine);
+        this.machineRepository.saveAndFlush(machine);
     }
 
 
