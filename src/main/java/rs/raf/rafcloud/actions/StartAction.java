@@ -41,7 +41,8 @@ public class StartAction implements AbstractAction{
         try {
             machine = machineRepository.findWithLockingByIdAndCreatedByAndActive(machineId,user, true);
         } catch (ObjectOptimisticLockingFailureException e) {
-            System.out.println("kako?");
+            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "startovano u vreme druge akcije i nije uspelo izvrsavanje"));
+            return;
         }
         if(machine == null){
             this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina nije aktivna i ne moze biti startovana"));
@@ -68,12 +69,12 @@ public class StartAction implements AbstractAction{
         Machine machine =  machineRepository.findByIdAndCreatedByAndActive(machineId,user, true);
 
         try {
-
+            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "krenulo"));
             machine.setStatus(machine.getStatus());
             this.machineRepository.save(machine);
 
         }catch (ObjectOptimisticLockingFailureException exception) {
-            System.out.println(exception + "  u stTartu");
+            System.out.println(exception + "  u startu");
         }
     }
 

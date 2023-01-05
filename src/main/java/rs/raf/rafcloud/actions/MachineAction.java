@@ -30,7 +30,7 @@ public class MachineAction extends Thread{
         try {
             abstractAction.doMachineAction(machineId,userId);
         }catch (UnexpectedRollbackException e){
-            System.out.println("Dimi");
+            System.out.println("Rollback se desio");
         }
     }
 
