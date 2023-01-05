@@ -38,4 +38,8 @@ public class Machine {
     @Column(nullable=false)
     private Boolean isDeleted = false;
 
+//    @Column
+//    @Version
+//    private Integer version;
+
 }

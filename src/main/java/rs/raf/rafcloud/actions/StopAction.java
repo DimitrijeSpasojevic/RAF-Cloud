@@ -2,6 +2,7 @@ package rs.raf.rafcloud.actions;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import rs.raf.rafcloud.model.Machine;
 import rs.raf.rafcloud.model.Message;
@@ -52,4 +53,32 @@ public class StopAction implements AbstractAction{
         this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina je stopirana"));
         return this.machineRepository.saveAndFlush(machine);
     }
+
+
+//    @Override
+//    public Machine doMachineAction(Long machineId, Long userId) { // sa optimistic lockom
+//        User user = userRepository.findByUserId(userId);
+//        Machine machine =  machineRepository.findByIdAndCreatedByAndActive(machineId,user, true);
+////        if(machine == null) return null; // todo masina je izbrisana
+////        if(!machine.getStatus().equalsIgnoreCase("STOPPED")){
+////            // todo baca gresku zato sto ne moze biti startovana
+////            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina ne moze biti startovana"));
+////            return machine;
+////        }
+//        try {
+//            sleep(1000 * 5);
+//
+//            machine.setStatus("STOPPED");
+//            this.machineRepository.save(machine);
+//
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }catch (ObjectOptimisticLockingFailureException exception) {
+//            System.out.println(exception + " u stopu");
+//        }
+//
+//        System.out.print("MachineActionStop finished " + user.getFirstName() + " masina "+ machine.getName());
+//        this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message(user.getFirstName(), "masina " +  machine.getName() + " stopirana"));
+//        return machine;
+//    }
 }

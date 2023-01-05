@@ -13,9 +13,10 @@ import java.util.List;
 
 @Repository
 public interface MachineRepository extends JpaRepository<Machine, Long> {
+
     List<Machine> findAllByCreatedBy(User user);
 
-    Machine findByIdAndCreatedBy(Long machineId, User user);
+    Machine findByIdAndCreatedByAndActive(Long machineId, User user, Boolean active);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Transactional(propagation = Propagation.MANDATORY)

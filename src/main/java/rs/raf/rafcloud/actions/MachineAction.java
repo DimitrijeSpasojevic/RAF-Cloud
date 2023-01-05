@@ -1,6 +1,8 @@
 package rs.raf.rafcloud.actions;
 
 
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
 public class MachineAction extends Thread{
 
     private Long machineId;
@@ -12,6 +14,15 @@ public class MachineAction extends Thread{
         this.userId = userId;
         this.abstractAction = abstractAction;
     }
+
+//    public void run()  za optimistic
+//    {
+//        try {
+//            abstractAction.doMachineAction(machineId,userId);
+//        }catch (ObjectOptimisticLockingFailureException e){
+//            System.out.println(e + "BBBBBBBBBBBBBBBBBBBB ");
+//        }
+//    }
 
     public void run()
     {
