@@ -5,5 +5,5 @@ import org.springframework.transaction.annotation.Transactional;
 public interface AbstractAction {
 
     @Transactional
-    void doMachineAction(Long machineId, Long userId);
+    void doMachineAction(Long machineId, Long userId, Boolean isScheduled);
 }

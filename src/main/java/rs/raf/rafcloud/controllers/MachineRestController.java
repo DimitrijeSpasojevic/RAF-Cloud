@@ -54,19 +54,19 @@ public class MachineRestController {
 
     @PutMapping(value = "/start/{machineId}", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> startMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
-        machineService.startMachine(machineId, userId);
+        machineService.startMachine(machineId, userId, false);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(value = "/stop/{machineId}", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> stopMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
-        machineService.stopMachine(machineId, userId);
+        machineService.stopMachine(machineId, userId, false);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(value = "/restart/{machineId}", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> restartMachine(@RequestAttribute("userId") Long userId, @PathVariable Long machineId){
-        machineService.restartMachine(machineId, userId);
+        machineService.restartMachine(machineId, userId, false);
         return ResponseEntity.ok().build();
     }
 
@@ -80,6 +80,18 @@ public class MachineRestController {
     @PostMapping(value = "/schedule/start", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> scheduleActionStartMachine(@RequestAttribute("userId") Long userId, @Valid @RequestBody ScheduleRequest scheduleRequest){
         machineService.scheduleStart(scheduleRequest, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/schedule/stop", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> scheduleActionStopMachine(@RequestAttribute("userId") Long userId, @Valid @RequestBody ScheduleRequest scheduleRequest){
+        machineService.scheduleStop(scheduleRequest, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/schedule/restart", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> scheduleActionRestartMachine(@RequestAttribute("userId") Long userId, @Valid @RequestBody ScheduleRequest scheduleRequest){
+        machineService.scheduleRestart(scheduleRequest, userId);
         return ResponseEntity.ok().build();
     }
 

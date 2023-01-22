@@ -2,12 +2,14 @@ package rs.raf.rafcloud.actions;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import rs.raf.rafcloud.model.Machine;
 import rs.raf.rafcloud.model.Message;
 import rs.raf.rafcloud.model.User;
 import rs.raf.rafcloud.repositories.MachineRepository;
 import rs.raf.rafcloud.repositories.UserRepository;
+import rs.raf.rafcloud.services.ErrorService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -22,24 +24,44 @@ public class StopAction implements AbstractAction{
     @PersistenceContext
     private EntityManager entityManager;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ErrorService errorService;
+
 
     @Autowired
-    public StopAction(MachineRepository machineRepository, UserRepository userRepository, SimpMessagingTemplate simpMessagingTemplate) {
+    public StopAction(MachineRepository machineRepository, UserRepository userRepository, SimpMessagingTemplate simpMessagingTemplate, ErrorService errorService) {
         this.machineRepository = machineRepository;
         this.userRepository = userRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.errorService = errorService;
     }
 
     @Override
-    public void doMachineAction(Long machineId, Long userId) {
+    public void doMachineAction(Long machineId, Long userId, Boolean isScheduled) {
         User user = userRepository.findByUserId(userId);
-        Machine machine = machineRepository.findWithLockingByIdAndCreatedByAndActive(machineId,user, true);
-        if(machine == null) return; // todo masina je izbrisana
+        isAnotherActionOnMachineRunning(machineId,userId,user);
+        Machine machine = null;
+        try {
+            machine = machineRepository.findWithLockingByIdAndCreatedByAndActive(machineId,user, true);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "stop u vreme druge akcije i nije uspelo izvrsavanje"));
+            if(isScheduled){
+                errorService.addError("stop u vreme druge akcije i nije uspelo izvrsavanje",machineId,userId,ActionEnum.STOP);
+            }
+            return;
+        }
+        if(machine == null){
+            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina nije aktivna i ne moze biti stopirana"));
+            if(isScheduled){
+                errorService.addError("masina nije aktivna i ne moze biti stopirana",machineId,userId,ActionEnum.STOP);
+            }
+            return;
+        }
         machine = entityManager.merge(machine);
-
         if(!machine.getStatus().equalsIgnoreCase("RUNNING")){
-            // todo baca gresku zato sto ne moze biti stop
             this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina ne moze biti stopirana zato sto nije u stanju running"));
+            if(isScheduled){
+                errorService.addError("masina ne moze biti stopirana zato sto nije u stanju running",machineId,userId,ActionEnum.STOP);
+            }
             return;
         }
         try {
@@ -51,6 +73,21 @@ public class StopAction implements AbstractAction{
         System.out.print("MachineAction finished");
         this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina je stopirana"));
         this.machineRepository.saveAndFlush(machine);
+    }
+    private void isAnotherActionOnMachineRunning(Long machineId, Long userId, User user){
+        Machine machine =  machineRepository.findByIdAndCreatedByAndActive(machineId,user, true);
+        if(machine == null){
+            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "masina nije aktivna i ne moze biti stopirana"));
+            return;
+        }
+        try {
+            this.simpMessagingTemplate.convertAndSend("/topic/messages/" + userId, new Message("server", "krenulo"));
+            machine.setStatus(machine.getStatus());
+            this.machineRepository.save(machine);
+
+        }catch (ObjectOptimisticLockingFailureException exception) {
+            System.out.println(exception + "  u stopu");
+        }
     }
 
 

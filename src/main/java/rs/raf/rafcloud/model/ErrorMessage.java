@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "errors")
+@Table
 public class ErrorMessage {
 
     @Id
@@ -31,9 +31,5 @@ public class ErrorMessage {
 
     @Column(nullable=false)
     private String errorText;
-
-
-
-
 
 }

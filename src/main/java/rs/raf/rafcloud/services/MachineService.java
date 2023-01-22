@@ -77,21 +77,21 @@ public class MachineService implements IService<Machine,Long>{
         return this.save(machine);
     }
 
-    public void startMachine(Long machineId, Long userId) {
+    public void startMachine(Long machineId, Long userId,Boolean isScheduled) {
 //        if(machineId != 2432243){
 //            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "moj izzzzuzetak");
 //        }
-        MachineAction machineAction = new MachineAction(machineId, userId, this.startAction);
+        MachineAction machineAction = new MachineAction(machineId, userId, this.startAction, isScheduled);
         machineAction.start();
     }
 
-    public void stopMachine(Long machineId, Long userId) {
-        MachineAction machineAction = new MachineAction(machineId, userId, this.stopAction);
+    public void stopMachine(Long machineId, Long userId,Boolean isScheduled) {
+        MachineAction machineAction = new MachineAction(machineId, userId, this.stopAction, isScheduled);
         machineAction.start();
     }
 
-    public void restartMachine(Long machineId, Long userId) {
-        MachineAction machineAction = new MachineAction(machineId, userId, this.restartAction);
+    public void restartMachine(Long machineId, Long userId, Boolean isScheduled) {
+        MachineAction machineAction = new MachineAction(machineId, userId, this.restartAction, isScheduled);
         machineAction.start();
     }
 
@@ -102,7 +102,7 @@ public class MachineService implements IService<Machine,Long>{
         machineRepository.saveAndFlush(machine.get());
     }
 
-    public void scheduleStart(ScheduleRequest scheduleRequest, Long userId) {
+    private CronTrigger preSchedule(ScheduleRequest scheduleRequest){
         Timestamp timestamp = new Timestamp(scheduleRequest.getTimestamp());
         LocalDateTime dateTime = timestamp.toLocalDateTime();
 
@@ -112,9 +112,27 @@ public class MachineService implements IService<Machine,Long>{
                 String.valueOf(dateTime.getDayOfMonth()),
                 String.valueOf(dateTime.getMonthValue()),
                 String.valueOf(dateTime.getDayOfWeek().getValue()));
-        CronTrigger cronTrigger = new CronTrigger(cronExpression);
+        return new CronTrigger(cronExpression);
+    }
+
+    public void scheduleStart(ScheduleRequest scheduleRequest, Long userId) {
+        CronTrigger cronTrigger  = preSchedule(scheduleRequest);
         this.taskScheduler.schedule(() -> {
-            this.startMachine(scheduleRequest.getMachineId(),userId);
+            this.startMachine(scheduleRequest.getMachineId(),userId, true);
+        }, cronTrigger);
+    }
+
+    public void scheduleStop(ScheduleRequest scheduleRequest, Long userId) {
+        CronTrigger cronTrigger  = preSchedule(scheduleRequest);
+        this.taskScheduler.schedule(() -> {
+            this.stopMachine(scheduleRequest.getMachineId(),userId, true);
+        }, cronTrigger);
+    }
+
+    public void scheduleRestart(ScheduleRequest scheduleRequest, Long userId) {
+        CronTrigger cronTrigger  = preSchedule(scheduleRequest);
+        this.taskScheduler.schedule(() -> {
+            this.restartMachine(scheduleRequest.getMachineId(),userId, true);
         }, cronTrigger);
     }
 

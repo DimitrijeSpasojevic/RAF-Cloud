@@ -45,10 +45,10 @@ public class ErrorService implements IService<ErrorMessage,Long>{
 
     }
 
-    public ErrorMessage addError(ErrorFromFront errorFromFront, Long userId, ActionEnum actionEnum){
+    public ErrorMessage addError(String errText, Long machineId, Long userId, ActionEnum actionEnum){
         ErrorMessage errorMessage = new ErrorMessage();
-        errorMessage.setErrorText(errorFromFront.getErrorText());
-        errorMessage.setMachineId(errorFromFront.getMachineId());
+        errorMessage.setErrorText(errText);
+        errorMessage.setMachineId(machineId);
         errorMessage.setUserId(userId);
         errorMessage.setLocalDateTime(LocalDateTime.now());
         errorMessage.setActionEnum(actionEnum);
